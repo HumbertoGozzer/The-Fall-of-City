@@ -46,7 +46,11 @@ class Level:
 
             for ent in self.entity_list:
                 if isinstance(ent, Enemy):
-                    if not ent.is_dead: ent.move(player.rect)
+                    if ent.is_dead:
+                        ent.move()
+                        continue
+
+                    ent.move(player.rect)
 
                     if ent.rect.colliderect(player.rect) and ent.current_state == 'Attack':
                         if 2.0 <= ent.frame_index < 2.5:
@@ -66,7 +70,7 @@ class Level:
 
                 hit = False
                 for ent in self.entity_list[:]:
-                    if isinstance(ent, Enemy) and bullet.rect.colliderect(ent.rect):
+                    if isinstance(ent, Enemy) and not ent.is_dead and bullet.rect.colliderect(ent.rect):
                         ent.is_dead = True
                         hit = True
                         break
@@ -79,7 +83,7 @@ class Level:
                 import random
                 pos_x = random.choice([-100, WIN_WIDTH + 100])
                 pos_y = random.randint(775, 950)
-                new_enemy = EntityFactory.get_entity('Enemy', (pos_x, pos_y))
+                new_enemy = EntityFactory.get_entity('Enemy', (pos_x, pos_y, 'Zb1'))
                 self.entity_list.extend(new_enemy)
                 self.time_elapsed -= 5000
 

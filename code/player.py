@@ -15,6 +15,9 @@ class Player(Entity):
         self.new_bullet = None
         self.name= 'Player'
 
+        self.hp = 100
+        self.is_dead = False
+
         # Loading of the animations
         self.animations = {
             'Idle': pygame.image.load('./asset/Soldier/Idle.png').convert_alpha(),
@@ -55,33 +58,23 @@ class Player(Entity):
             self.animating()
             return
 
+        pressed = pygame.key.get_pressed()
         mouse = pygame.mouse.get_pressed()
-        if mouse[0] or mouse[2]:
-            if mouse[0] and self.current_action != 'Shot':
-                from code.bullet import Bullet
+        in_moviment = any([pressed[pygame.K_w], pressed[pygame.K_s], pressed[pygame.K_a], pressed[pygame.K_d]])
+        speed = PLAYER_SPEED * (1.5 if pressed[pygame.K_LSHIFT] else 1.0)
 
+
+        if mouse[0] or mouse[2]:
+            self.current_action = 'Shot' if mouse[0] else 'MeleAttack'
+            if mouse[0] and 2.0 <= self.index_frame < 2.0 + self.speed_animation:
+                from code.bullet import Bullet
                 offset_x = -30 if self.turned_left else 30
                 bullet_pos = (self.rect.centerx + offset_x, self.rect.centery - 20)
                 self.new_bullet = Bullet(bullet_pos, self.turned_left)
 
-            self.current_action = 'Shot' if mouse[0] else 'MeleAttack'
-            self.animating()
-            return
-
-        pressed = pygame.key.get_pressed()
-        mouse = pygame.mouse.get_pressed()
-
-        in_moviment = any([pressed[pygame.K_w], pressed[pygame.K_s], pressed[pygame.K_a], pressed[pygame.K_d]])
-        speed = PLAYER_SPEED * (1.5 if pressed[pygame.K_LSHIFT] else 1.0)
-
         # Actions
-        if mouse[0]: new_action = 'Shot'
-        elif mouse[2]: new_action = 'MeleAttack'
-        elif in_moviment: new_action = 'Run' if pressed[pygame.K_LSHIFT] else 'Walk'
-        else: new_action = 'Idle'
-
-        # Movements
-        if not (mouse[0] or mouse[2]):
+        elif in_moviment:
+            self.current_action = 'Run' if pressed[pygame.K_LSHIFT] else 'Walk'
             if pressed[pygame.K_w]: self.rect.y -= speed
             if pressed[pygame.K_s]: self.rect.y += speed
             if pressed[pygame.K_a]:
@@ -91,11 +84,10 @@ class Player(Entity):
                 self.rect.x += speed
                 self.turned_left = False
 
-        # Restart animation when switching actions.
-        if new_action != self.current_action:
-            self.current_action = new_action
-            self.index_frame = 0.0
 
+        else: self.current_action = 'Idle'
+        if  self.current_action not in ['Shot', 'MeleAttack']:
+            pass
 
         # Screen limits
         self.rect.clamp_ip(pygame.Rect(0, 775, WIN_WIDTH, 300))
@@ -131,9 +123,15 @@ class Player(Entity):
             if self.flash_duration <= 0: self.is_flashing = False
 
     def take_damage(self):
-        if not self.is_flashing and self.current_action != 'Dead':
-            self.is_flashing = True
-            self.flash_duration = self.flash_frames
+        if not self.is_flashing and not self.is_dead:
+            self.hp -= 10
+            if self.hp <= 0:
+                self.is_dead = True
+                self.current_action = 'Dead'
+                self.index_frame = 0.0
+            else:
+                self.is_flashing = True
+                self.flash_duration = self.flash_frames
 
 
 

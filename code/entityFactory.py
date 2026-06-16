@@ -17,6 +17,7 @@ class EntityFactory:
             case 'Player':
                 return [Player('Soldier/idle', position=(10, WIN_HEIGHT / 2 ))]
             case 'Enemy':
-                return [Enemy('Zombie/Zb1Idle', position)]
+                enemy_type = position[2] if len(position) > 2 else 'Zombie/Zb1'
+                return [Enemy(enemy_type, position)]
             case _:
                 return []
