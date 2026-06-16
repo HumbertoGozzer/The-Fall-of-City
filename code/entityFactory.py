@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 from code.background import Background
 from code.const import WIN_HEIGHT
+from code.enemy import Enemy
 from code.player import Player
 
 
@@ -15,5 +16,7 @@ class EntityFactory:
                 return [Background(f'Background/{entity_name}', position)]
             case 'Player':
                 return [Player('Soldier/idle', position=(10, WIN_HEIGHT / 2 ))]
+            case 'Enemy':
+                return [Enemy('Zombie/Zb1Idle', position)]
             case _:
                 return []
