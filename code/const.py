@@ -5,8 +5,6 @@ COLOR_GREEN = (126, 140, 84)
 
 # Menus
 MENU_OPTION = ('NEW GAME',
-               'OPTIONS',
-               'SCORE',
                'CREDITS',
                'EXIT')
 
